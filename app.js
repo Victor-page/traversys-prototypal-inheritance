@@ -1,178 +1,69 @@
-// function Person(firstName, lastName, dob) {
-//   // This additional line is automatically added by the keyword 'new'
-//   // it sets up the relationship between the instance and the prototype object
-//   // So that the instance will delegate to the Prototype object
-//   // this = Object.create(Person.prototype);
-
-//   this.firstName = firstName;
-//   this.lastName = lastName;
-//   this.birthday = new Date(dob);
-
-//   // return this;
-// }
-
-// Person.prototype.calculatetAge = function () {
-//   const diff = Date.now() - this.birthday.getTime();
-//   const ageDate = new Date(diff);
-//   return Math.abs(ageDate.getUTCFullYear() - 1970);
-// };
-
-// Person.prototype.getFullName = function () {
-//   return `${this.firstName} ${this.lastName}`;
-// };
-
-// Person.prototype.getsMarried = function (newLastname) {
-//   this.lastName = newLastname;
-// };
-
-// Person.prototype.greeting = function () {
-//   return `Hello there ${this.firstName} ${this.lastName}`;
-// };
-
-// function Customer(firstName, lastName, dob, phone, membership) {
-//   Person.call(this, firstName, lastName, dob);
-//   this.phone = phone;
-//   this.membership = membership;
-// }
-
-// // Inherit the Person prototype methods
-// Customer.prototype = Object.create(Person.prototype);
-
-// // Make customer.prototype return Customer()
-// Customer.prototype.constructor = Customer;
-
-// const mary = new Customer(
-//   'Mary',
-//   'Johnson',
-//   '9-1-1981',
-//   '555-555-5555',
-//   'Standard'
-// );
-// const john = new mary.__proto__.constructor(
-//   'John',
-//   'Doe',
-//   '9/1/1981',
-//   '444-444-4444',
-//   'Premium'
-// );
-// mary.getsMarried('Doe');
-
-// // Customer greeting
-// Customer.prototype.greeting = function () {
-//   return `Hello there ${this.firstName} ${this.lastName} welcome to our company`;
-// };
-
-// console.log(mary.greeting());
-// // console.log(mary.hasOwnProperty('calculatetAge'));
-// console.log(mary);
-// console.log(john);
-
-// // String
-// const name1 = 'Jeff';
-// const name2 = new String('Jeff');
-// // console.log(typeof name1);
-// // console.log(typeof name2);
-
-// // Number
-// const num1 = 5;
-// const num2 = new Number(5);
-
-// // Boolean
-// const bool1 = true;
-// const bool2 = new Boolean(true);
-
-// // Function
-// const getSum1 = function (x, y) {
-//   return x + y;
-// };
-// const getSum2 = new Function('x', 'y', 'return x + y');
-// // console.log(getSum2(2, 2));
-
-// // Object
-// const john1 = { name: 'John' };
-// const john2 = new Object({ name: 'John' });
-// // console.log(john2);
-
-// // Regular Expressions
-// const re1 = /\w+/;
-// const re2 = new RegExp('\\w+');
-// console.log(re1);
-// console.log(re2);
-
-// const personPrototypes = {
-//   greeting: function () {
-//     return `Hello there ${this.firstName} ${this.lastName}`;
-//   },
-//   getsMarried: function (newLastname) {
-//     this.lastName = newLastname;
-//   },
-// };
-
-// const mary = Object.create(personPrototypes);
-// mary.firstName = 'Mary';
-// mary.lastName = 'Williams';
-// mary.age = 40;
-
-// mary.getsMarried('Thompson');
-// console.log(mary);
-
-// const brad = Object.create(personPrototypes, {
-//   firstName: { value: 'Brad' },
-//   lastName: { value: 'Traversy' },
-//   age: { value: 36 },
-// });
-// console.log(brad);
-
-class Person {
-  constructor(firstName, lastName, dob) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.birthday = new Date(dob);
-  }
-
-  greeting() {
-    return `Hello there ${this.firstName} ${this.lastName}`;
-  }
-
-  calculateAge() {
-    const diff = Date.now() - this.birthday.getTime();
-    const ageDate = new Date(diff);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  }
-
-  getsMarried(newLastname) {
-    this.lastName = newLastname;
-  }
-
-  static addNumbers(x, y) {
-    return x + y;
-  }
-
-  static prop = 5;
-
-  // We can create static ones if we are not using this keyword and it is just kind of a standalone function or method that u want in your class, then that is a good case for a static method
+function Book(title, author, isbn) {
+  this.title = title;
+  this.author = author;
+  this.isbn = isbn;
 }
 
-const mary = new Person('Mary', 'Williams', '11 13 80');
-mary.getsMarried('Thompson');
-// console.log(mary);
-// console.log(Person.addNumbers(Person.prop, 2));
+function UI() {}
 
-class Customer extends Person {
-  constructor(firstName, lastName, dob, phone, membership) {
-    super(firstName, lastName, dob);
-    this.phone = phone;
-    this.membership = membership;
+UI.prototype.addBookToList = function (book) {
+  const list = document.getElementById('book-list');
+  const row = document.createElement('tr');
+  row.innerHTML = `
+  <td>${book.title}</td>
+  <td>${book.author}</td>
+  <td>${book.isbn}</td>
+  <td><a href="#" class="delete">X</a></td>
+  `;
+
+  list.appendChild(row);
+};
+
+UI.prototype.showAlert = function (message, className) {
+  const div = document.createElement('div');
+  div.className = `alert ${className}`;
+  div.appendChild(document.createTextNode(message));
+  const container = document.querySelector('.container');
+  const form = container.querySelector('#book-form');
+  container.insertBefore(div, form);
+  setTimeout(function () {
+    div.remove();
+  }, 2500);
+};
+
+UI.prototype.deleteBook = function (target) {
+  if (target.className !== 'delete') {
+    return;
+  }
+  target.parentElement.parentElement.remove();
+  UI.prototype.showAlert('Book removed!', 'success');
+};
+
+UI.prototype.clearFields = function () {
+  document.getElementById('title').value = '';
+  document.getElementById('author').value = '';
+  document.getElementById('isbn').value = '';
+};
+
+document.getElementById('book-form').addEventListener('submit', function (e) {
+  const title = document.getElementById('title').value,
+    author = document.getElementById('author').value,
+    isbn = document.getElementById('isbn').value;
+
+  const book = new Book(title, author, isbn);
+  const ui = new UI();
+  if (!title.trim() || !author.trim() || !isbn.trim()) {
+    ui.showAlert('Please fill in all fields', 'error');
+  } else {
+    ui.addBookToList(book);
+    ui.showAlert('Book Added!', 'success');
+    ui.clearFields();
   }
 
-  static prop = 10;
+  e.preventDefault();
+});
 
-  static getMemberShipCost() {
-    return 500;
-  }
-}
-
-const john = new Customer('John', 'Doe', '9/1/1981', '444-444-4444', 'Premium');
-// console.log(john.greeting());
-// console.log(Customer.getMemberShipCost());
-console.log(john);
+document.getElementById('book-list').addEventListener('click', function (e) {
+  UI.prototype.deleteBook(e.target);
+  e.preventDefault();
+});

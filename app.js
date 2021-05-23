@@ -33,11 +33,7 @@ class UI {
   }
 
   deleteBook(target) {
-    if (target.className !== 'delete') {
-      return;
-    }
     target.parentElement.parentElement.remove();
-    UI.prototype.showAlert('Book removed!', 'success');
   }
 
   clearFields() {
@@ -48,14 +44,42 @@ class UI {
 }
 
 class Store {
-  static getBooks() {}
+  static getBooks() {
+    let books;
+    if (!localStorage.getItem('books')) {
+      books = [];
+    } else {
+      books = JSON.parse(localStorage.getItem('books'));
+    }
+    return books;
+  }
 
-  static displayBooks() {}
+  static displayBooks() {
+    const books = Store.getBooks();
+    books.forEach((book) => {
+      const ui = new UI();
+      ui.addBookToList(book);
+    });
+  }
 
-  static addBook() {}
+  static addBook(book) {
+    const books = Store.getBooks();
+    books.push(book);
+    localStorage.setItem('books', JSON.stringify(books));
+  }
 
-  static removeBook() {}
+  static removeBook(isbn) {
+    const books = Store.getBooks();
+    books.forEach((book, index) => {
+      if (book.isbn === isbn) {
+        books.splice(index, 1);
+      }
+    });
+    localStorage.setItem('books', JSON.stringify(books));
+  }
 }
+
+document.addEventListener('DOMContentLoaded', Store.displayBooks);
 
 document.getElementById('book-form').addEventListener('submit', function (e) {
   const title = document.getElementById('title').value,
@@ -65,11 +89,11 @@ document.getElementById('book-form').addEventListener('submit', function (e) {
   const book = new Book(title, author, isbn);
   const ui = new UI();
 
-  console.log(ui);
   if (!title.trim() || !author.trim() || !isbn.trim()) {
     ui.showAlert('Please fill in all fields', 'error');
   } else {
     ui.addBookToList(book);
+    Store.addBook(book);
     ui.showAlert('Book Added!', 'success');
     ui.clearFields();
   }
@@ -78,6 +102,11 @@ document.getElementById('book-form').addEventListener('submit', function (e) {
 });
 
 document.getElementById('book-list').addEventListener('click', function (e) {
+  if (!e.target.classList.contains('delete')) {
+    return;
+  }
+  Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
   UI.prototype.deleteBook(e.target);
+  UI.prototype.showAlert('Book removed!', 'success');
   e.preventDefault();
 });
